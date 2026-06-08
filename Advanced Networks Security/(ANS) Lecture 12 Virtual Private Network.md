@@ -211,19 +211,8 @@ pre-distribution of separate HMAC keys to all users
 
 
 
-### Wirequard
 
-bind IP address and public key
-
- understand limitation pros and cons
- what could go wring in certain cases
-
-### Routing through VPN & VPN Client security
-
-### ccc
-
-
-# Improved notes on VPN
+# Improved <span style="color:rgb(219, 0, 0)">notes</span> on VPN
 
 [[vpn claude sum]]
 
@@ -270,11 +259,22 @@ so even though traffic goes through proxy:
 ...
 
 # Web Proxy Auto-Discovery (WPAD)
-...
+can connect to a malicious proxy
+
+....
 
 
 
 # IPSec
+old standard
+separate authentication from confidentiality
+authentication header - authenticate the origin of the traffic
+	but not confidentiality (not encrypted)
+
+encapsulation - add encryption on top of authentication
+
+transport mode
+tunnel mode
 
 
 
@@ -306,3 +306,213 @@ OpenVPN is a TLS-based VPN solution tunneling IP subnetworks or virtual Ethernet
 
 #### OpenVPN-NL
 A hardened variant certified to NLNCSA Level 2, used in classified environments. It strips insecure options and uses mbed TLS instead of OpenSSL, chosen for its smaller, more auditable codebase.
+
+
+has two modes:
+- TLS mode - does requires additional pre-distributed HMAC keys to all users
+		on top of TLS we want HMAC Keys
+- static mode - static pre-shared keys
+
+has two channels:
+- control channel
+- data channel
+
+
+establish a TLS session (a channel)
+don't use the channel for traffic
+but use to negotiate keys, used for actual data encryption
+
+![[Pasted image 20260608165626.png]]
+
+
+
+(1) Client sends `P_CONTROL_HARD_RESET_CLIENT_V1/2` - "I want a fresh connection"
+(2) Server replies `P_CONTROL_HARD_RESET_SERVER_V1/2` - "Acknowledged, let's start"
+(3) Client sends `P_ACK_V1` - acknowledges the server's reset (reliability layer)
+
+(4a) Client sends TLS ClientHello **inside** a `P_CONTROL_V1` packet - TLS handshake begins
+(4b) Server replies with its TLS handshake message (ServerHello, certificate, etc.)
+(4c) Both sides exchange further messages over the **temporary TLS tunnel** 
+	this is where key material is derived, either via **nonce exchange** or **TLS Exporter**
+		control channel - <span style="color:rgb(219, 0, 0)">use to derive sesh keys</span>
+
+(5) Client sends final `P_ACK_V1` - control channel setup complete
+(6) `P_DATA_V1/2` packets flow - the actual VPN tunnel is live
+(7) `P_CONTROL_SOFT_RESET` - server initiates a **key renegotiation** (happens periodically without dropping the tunnel)
+
+<span style="color:rgb(219, 0, 0)">the actual VPN tunnel - datat channel - is not over TLS, that would introduce overhead<br>use TLS to simply communicate the keys</span>
+
+#### Control Channel
+- Used for **authentication, key exchange, and session management**
+- Runs **TLS** inside `P_CONTROL_V1` packets — essentially TLS-within-UDP
+- Reliable: has its own **acknowledgement system** (`P_ACK_V1`) because UDP has no built-in delivery guarantees
+- Carries the handshake, certificates, and key material negotiation
+- Lower throughput, higher importance for security setup
+
+#### Data Channel
+- Used for the actual **encrypted VPN traffic** (your browsing, downloads, etc.)
+- Uses `P_DATA_V1/2` packets: **header + payload + HMAC tag**
+- Keys are derived from what was negotiated in the control channel
+- Optimized for **high throughput**, uses symmetric cipher (e.g. AES-GCM) + HMAC for integrity
+- Much faster than the control channel — no TLS overhead per packet
+
+
+`tap` tunnel full ethernet frames, bridges two LANs together, can have broadcast
+`tun` tunnel IP packets only (IPv4 and IPv6), faster performance
+	not broadcast 
+
+```
+Layer 7 Application (HTTP, DNS, SSH...)
+Layer 4 Transport (TCP, UDP)
+Layer 3 Network (IP addresses, routing)
+Layer 2 Data Link (MAC addresses, Ethernet frames)
+Layer 1 Physical (actual cables, radio waves)
+```
+
+
+### TUN  Layer 3 tunnel
+- The virtual `tun0` interface sits at the **IP layer**
+- OpenVPN grabs raw **IP packets** from the OS and tunnels them
+- Your OS thinks `tun0` is just another network interface, sends IP packets to it
+- Those IP packets get encrypted and sent as P_DATA
+
+```
+Your app → TCP segment → IP packet → tun0 → OpenVPN encrypts → P_DATA → internet
+```
+
+**Why faster?** Less data per packet — you strip the Ethernet header, only tunnel the IP payload. Also no broadcast traffic to deal with.
+
+**What you lose:** anything that lives purely at Layer 2 — broadcasts, multicasts, MAC-based protocols.
+
+
+### TAP Layer 2 tunnel
+- The virtual `tap0` interface sits at the **Ethernet layer**
+- OpenVPN grabs entire **Ethernet frames** — MAC headers and all
+- The remote network appears as if you're **physically plugged into it** via a virtual cable
+- You can bridge two LANs together as if they were one
+
+```
+Your app → TCP segment → IP packet → Ethernet frame → tap0 → OpenVPN encrypts → P_DATA → internet
+```
+
+**What you gain:** full Layer 2 behaviour — broadcasts, multicasts, and protocols that never even reach Layer 3.
+
+### The Security/Hacking angle — why TAP matters
+The slide mentions two specific protocols:
+#### LLMNR (Link-Local Multicast Name Resolution)
+- A **Layer 2 broadcast** protocol — when a Windows machine can't resolve a hostname via DNS, it shouts out to the whole local network: _"hey, does anyone know where 'FILESERVER' is?"_
+- Because it's a **broadcast**, it never crosses a router — it stays on the LAN
+- With TUN, you'd **never see these** — they die at the router
+- With TAP, you're **virtually on the same LAN**, so you receive those broadcasts
+
+
+<span style="color:rgb(219, 0, 0)">heavy protocol</span>
+
+# WireGuard
+proposed around 2017
+
+strip away a lot of things that are optional
+
+core concept - bind public keys and IP address
+route traffic to a key (IP address)
+
+protocols are hardcoed - no negotiation of which protocols to use
+(TLS has negotiation which protocols to use)
+use only:
+	Curve25519, 256-bit ChaCha20, 128-bit Poly1305
+
+only peer-to-peer
+no client-server configuration
+
+
+WireGuard doesn't <span style="color:rgb(219, 0, 0)">negotiate</span> algorithms — you get exactly these:
+
+| Purpose                  | Primitive                |
+| ------------------------ | ------------------------ |
+| Key exchange             | Curve25519 (ECDH)        |
+| Symmetric encryption     | ChaCha20-Poly1305 (AEAD) |
+| Hashing / key derivation | BLAKE2s                  |
+| Handshake MAC            | HMAC-BLAKE2s             |
+| Session key derivation   | HKDF                     |
+
+protocols that negotiate ciphers (like TLS) are vulnerable to downgrade attacks where an attacker forces both sides to agree on a weaker cipher
+
+
+### The Identity Model: Cryptokey Routing
+
+WireGuard's most distinctive design idea is **cryptokey routing**. Instead of usernames, passwords, or certificates, identity is entirely based on Curve25519 public keys. Each peer has a static keypair. The association is simple:
+
+> "This public key is allowed to send/receive traffic claiming to be from these IP prefixes."
+
+Each interface maintains a table like this:
+
+```
+Peer Public Key          → AllowedIPs
+xTIB...p8Dg             → 10.192.122.3/32, 10.192.124.0/24
+TrMv...WXX0             → 10.192.122.4/32, 192.168.0.0/16
+gN65...z6EA             → 10.10.10.230/32
+```
+
+**On sending:** when a packet is destined for an IP in a peer's AllowedIPs, it gets encrypted and sent to that peer's endpoint
+
+**On receiving:** a decrypted packet is only accepted if its source IP falls within the sending peer's AllowedIPs. This dual enforcement means cryptographic authentication and routing policy are unified — a peer cannot spoof source IPs outside their AllowedIPs range, because the decryption itself enforces the constraint.
+
+
+<span style="color:rgb(219, 0, 0)">works based on IP ranges</span> 
+
+how do we know the keys?
+
+
+routing - tun only, route IP only
+
+<span style="color:rgb(219, 0, 0)">no PKI/certificates baked into protocol, simply trusts configured public keys</span>
+
+goal - service does not respond if a guy connects from "outside" of allowed IP range
+does not respond - remain stealthy
+
+does not get or give feedback if not authenticated
+
+but
+you are harder to discover (censorship context)
+public scan of internet - can't map who hosts wireguard node
+
+
+# The fundamental concept: Cryptokey Routing
+
+This is the most important WireGuard innovation.
+
+A configuration might look like:
+
+```
+Peer Public Key: ServerKeyAllowed IPs: 10.0.0.1/32Peer Public Key: LaptopKeyAllowed IPs: 10.0.0.2/32
+```
+
+WireGuard uses this table in **both directions**:
+
+### Sending
+
+When a packet is sent to:
+
+```
+Destination = 10.0.0.1
+```
+
+WireGuard looks up:
+
+```
+10.0.0.1 → ServerKey
+```
+
+and encrypts the packet for the server.
+
+### Receiving
+
+When a packet is decrypted from `ServerKey`, WireGuard verifies:
+
+```
+Source IP == 10.0.0.1
+```
+
+If not, the packet is dropped.
+
+So a peer cannot pretend to be another IP address even after successful decryption.
