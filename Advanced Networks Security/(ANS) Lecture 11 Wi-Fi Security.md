@@ -120,8 +120,8 @@ wpa3 based on diffie helman
 SAE simultaneous authentication of equals
 
 
-----
-more clean notes
+
+# Improved Notes
 
 two layers
 PHY physical layers handles the actual physical signals
@@ -209,7 +209,6 @@ The **AS** verifies whether the user/device is allowed to join the network
 AS either built-in into AP or external
 
 ![[Pasted image 20260520122545.png]]
-
 
 
 ### Standard IEEE 802.1X  
@@ -396,7 +395,6 @@ WPA3 (2018): AES-GCMP
 
 
 ### WPA
-
 quick fix after WEP
 
 WPA introduced:
@@ -437,9 +435,6 @@ PSK - pre-shared key
 SAE - simultaneous authentication equals
 
 
-
-
-
 ### WPA Personel
 ![[Pasted image 20260520144604.png]]
 
@@ -448,4 +443,4 @@ SAE - simultaneous authentication equals
 
 
 
-WPA3 has forward secrecy, no offline bruteforce attacks
+<span style="color:rgb(219, 0, 0)">WPA3 has forward secrecy, no offline bruteforce attacks</span> 
