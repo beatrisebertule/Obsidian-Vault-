@@ -484,7 +484,11 @@ This is the most important WireGuard innovation.
 A configuration might look like:
 
 ```
-Peer Public Key: ServerKeyAllowed IPs: 10.0.0.1/32Peer Public Key: LaptopKeyAllowed IPs: 10.0.0.2/32
+Peer Public Key: ServerKey
+Allowed IPs: 10.0.0.1/32
+
+Peer Public Key: LaptopKey
+Allowed IPs: 10.0.0.2/32
 ```
 
 WireGuard uses this table in **both directions**:
@@ -516,3 +520,5 @@ Source IP == 10.0.0.1
 If not, the packet is dropped.
 
 So a peer cannot pretend to be another IP address even after successful decryption.
+
+[[wireguard chat summary]]
