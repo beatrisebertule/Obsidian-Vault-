@@ -1,164 +1,160 @@
-|   |   |   |
-|---|---|---|
-|**Question 1**Correct on previous attempt(s)||1 / 1 point|
+claude summary
 
-What does the provided _classifier.py_ effectively detect?
+## 1. Botnets
 
-Question options:
+### What is a Botnet?
+A botnet is a network of compromised machines (bots) infected by malware. Bots take commands from a **Command & Control (C&C) server**, which acts as a rendezvous between the bots and the human operator, called the **botmaster**. The botmaster often hides behind **stepping-stones** — proxy machines placed between themselves and the C&C server — to evade detection.
 
-|   |   |
-|---|---|
-|![Unselected](https://brightspace.ru.nl/d2l/img/0/QuestionCollection.Main.radioUnchecked.svg?v=20.26.5.24373 "Unselected")|Any domain produced by an algorithm, regardless of appearance|
-|![Selected](https://brightspace.ru.nl/d2l/img/0/QuestionCollection.Main.radioChecked.svg?v=20.26.5.24373 "Selected")|Domains that look statistically random (high entropy, many digits, long vowel-less runs)|
-|![Unselected](https://brightspace.ru.nl/d2l/img/0/QuestionCollection.Main.radioUnchecked.svg?v=20.26.5.24373 "Unselected")|Domains that were registered within the last 24 hours|
-|![Unselected](https://brightspace.ru.nl/d2l/img/0/QuestionCollection.Main.radioUnchecked.svg?v=20.26.5.24373 "Unselected")|Domains longer than 15 characters|
+### What Botnets Are Used For
 
-|   |   |   |
-|---|---|---|
-|**Question 2**Retaken||1 / 1 point|
+Bots can attack their own infected hosts (stealing passwords, credit card data, CPU cycles for crypto mining) or target third parties (sending spam, launching DDoS attacks). Botmasters can update bot binaries to repurpose the botnet at will — making it a "Swiss army knife" for cybercriminals — and can also rent or sell botnet access, offering services like DDoS-as-a-service.
 
-Which DGA type would most easily achieve a detection rate below 10% against the classifier you used in the exercise?
+### Scale of the Threat
 
-Question options:
+The botnet threat is substantial and persistent. Historical estimates suggested up to a quarter of all internet-connected computers were part of botnets. The Spamhaus Botnet Threat Report Q3–4 2025 recorded 21,425 detected botnets in the second half of 2025, a 24% increase over the prior period. The Netherlands ranked #3 globally for botnet C&C locations, with 2,104 detected in that period — a 50% rise. The most abused domain registrar was Russia's REGRU, jumping nearly 9,600% in one period.
 
-|   |   |
-|---|---|
-|![Unselected](https://brightspace.ru.nl/d2l/img/0/QuestionCollection.Main.radioUnchecked.svg?v=20.26.5.24373 "Unselected")|Arithmetic-based|
-|![Unselected](https://brightspace.ru.nl/d2l/img/0/QuestionCollection.Main.radioUnchecked.svg?v=20.26.5.24373 "Unselected")|Hash-based|
-|![Selected](https://brightspace.ru.nl/d2l/img/0/QuestionCollection.Main.radioChecked.svg?v=20.26.5.24373 "Selected")|Wordlist-based|
-|![Unselected](https://brightspace.ru.nl/d2l/img/0/QuestionCollection.Main.radioUnchecked.svg?v=20.26.5.24373 "Unselected")|It makes no difference; all types score the same|
+Notable botnet operations cited in the lecture include Qakbot (700,000 bots, taken down 2023), Emotet (taken down 2021, revived within a year), TrickBot (taken down 2020, operators invested $20M to rebuild and resumed operations in 2021), and the Conti ransomware group which accumulated over $2 billion in cryptocurrency. Ransomware has dramatically changed the economics of cybercrime, making criminal groups wealthy enough to absorb takedowns and rebuild.
 
-|   |   |   |
-|---|---|---|
-|**Question 3**Correct on previous attempt(s)||1 / 1 point|
+---
 
-Your DGA produces `3f9a1c7e0b.com`. Which classifier feature is it MOST likely to trigger?
+## 2. How Botnets Operate
 
-Question options:
+### Bot Life Cycle
 
-|   |   |
-|---|---|
-|![Selected](https://brightspace.ru.nl/d2l/img/0/QuestionCollection.Main.radioChecked.svg?v=20.26.5.24373 "Selected")|Number of digits|
-|![Unselected](https://brightspace.ru.nl/d2l/img/0/QuestionCollection.Main.radioUnchecked.svg?v=20.26.5.24373 "Unselected")|A dictionary-word match|
-|![Unselected](https://brightspace.ru.nl/d2l/img/0/QuestionCollection.Main.radioUnchecked.svg?v=20.26.5.24373 "Unselected")|Edit distance to a popular domain|
-|![Unselected](https://brightspace.ru.nl/d2l/img/0/QuestionCollection.Main.radioUnchecked.svg?v=20.26.5.24373 "Unselected")|None; hex strings are never flagged|
+A bot goes through three phases. In **Phase 1 (Infection)**, the host receives initial malware which then downloads the actual bot binary (secondary infection). In **Phase 2 (Connection/Maintenance)**, the bot contacts the C&C server to announce its presence and establish a command channel, then waits in a passive state for updates or instructions. In **Phase 3 (Activity)**, the bot executes malicious tasks and may propagate to other hosts.
 
-|   |   |   |
-|---|---|---|
-|**Question 4**Correct on previous attempt(s)||1 / 1 point|
+### Rallying (Finding the C&C)
 
-To keep entropy below the classifier’s threshold, a DGA should:
+Bots locate the C&C server either via a **domain name** (hardcoded or dynamically generated by a DGA) or a **hardcoded IP address**. For P2P botnets, an initial peer list seeds contact. Hardcoded IPs avoid DNS lookups but are vulnerable to reverse engineering. DGA-generated domains are harder to pre-emptively block.
 
-Question options:
+### C&C Communication Protocols
 
-|   |   |
-|---|---|
-|![Unselected](https://brightspace.ru.nl/d2l/img/0/QuestionCollection.Main.radioUnchecked.svg?v=20.26.5.24373 "Unselected")|Draw every character uniformly at random from a large alphabet|
-|![Selected](https://brightspace.ru.nl/d2l/img/0/QuestionCollection.Main.radioChecked.svg?v=20.26.5.24373 "Selected")|Use natural or repeated character patterns (e.g. real words)|
-|![Unselected](https://brightspace.ru.nl/d2l/img/0/QuestionCollection.Main.radioUnchecked.svg?v=20.26.5.24373 "Unselected")|Add more digits to each domain|
-|![Unselected](https://brightspace.ru.nl/d2l/img/0/QuestionCollection.Main.radioUnchecked.svg?v=20.26.5.24373 "Unselected")|Increase the domain length|
+Early botnets used **IRC** for simple, near-real-time control, but this is now easily distinguished. Most modern botnets use **HTTP** (periodic polling of the C&C server), which blends with normal traffic and is difficult to block. Recent botnets use **peer-to-peer** protocols (BitTorrent, Gnutella, even Skype/VoIP), dispersing commands across any node.
 
-|   |   |   |
-|---|---|---|
-|**Question 5**Correct on previous attempt(s)||1 / 1 point|
+### Propagation
 
-Having to add a method-specific feature for each DGA type best illustrates that DGA detection is:
+**Active propagation** has bots autonomously scanning for vulnerable hosts and exploiting them to install the bot binary, similar to worm behavior. **Passive propagation** requires some user action: drive-by downloads (malicious JavaScript on websites), infected USB drives (e.g., Stuxnet), or social engineering (Emotet used spam emails with malicious Word attachments; Storm used malicious links).
 
-Question options:
+---
 
-|   |   |
-|---|---|
-|![Unselected](https://brightspace.ru.nl/d2l/img/0/QuestionCollection.Main.radioUnchecked.svg?v=20.26.5.24373 "Unselected")|A solved problem once entropy is measured|
-|![Selected](https://brightspace.ru.nl/d2l/img/0/QuestionCollection.Main.radioChecked.svg?v=20.26.5.24373 "Selected")|An arms race / cat-and-mouse between generation and detection|
-|![Unselected](https://brightspace.ru.nl/d2l/img/0/QuestionCollection.Main.radioUnchecked.svg?v=20.26.5.24373 "Unselected")|Purely a matter of TLD validation|
-|![Unselected](https://brightspace.ru.nl/d2l/img/0/QuestionCollection.Main.radioUnchecked.svg?v=20.26.5.24373 "Unselected")|Independent of how the domains are generated|
+## 3. Evasion Tactics
 
-|   |   |   |
-|---|---|---|
-|**Question 6**Correct on previous attempt(s)||1 / 1 point|
+### Evading Detection of the Bot Binary
 
-A permutation-based DGA turns paypal.com into paypa1.com. The best detection feature is:
+- **Polymorphism**: the binary changes form (encryption/compression) across infections
+- **Metamorphism**: the binary is rewritten into semantically equivalent but structurally different code
+- **Anti-analysis**: checks whether it's running in a VM, sandbox, or honeypot and refuses to execute or alters its behavior
+- **Security suppression**: disables antivirus or other security software
+- **Rootkit technology**: subverts the OS to stay persistent and hidden
 
-Question options:
+### Evading Detection of the C&C Server
 
-|   |   |
-|---|---|
-|![Unselected](https://brightspace.ru.nl/d2l/img/0/QuestionCollection.Main.radioUnchecked.svg?v=20.26.5.24373 "Unselected")|Number of digits|
-|![Unselected](https://brightspace.ru.nl/d2l/img/0/QuestionCollection.Main.radioUnchecked.svg?v=20.26.5.24373 "Unselected")|Shannon entropy|
-|![Selected](https://brightspace.ru.nl/d2l/img/0/QuestionCollection.Main.radioChecked.svg?v=20.26.5.24373 "Selected")|Edit (Levenshtein) distance to a list of popular domains|
-|![Unselected](https://brightspace.ru.nl/d2l/img/0/QuestionCollection.Main.radioUnchecked.svg?v=20.26.5.24373 "Unselected")|Consonant/vowel ratio|
+Several DNS-based techniques are used:
 
-|   |   |   |
-|---|---|---|
-|**Question 7**Correct on previous attempt(s)||1 / 1 point|
+**Dynamic DNS (DDNS)**: Rapidly changes the IP address associated with a fixed domain name, defeating IP blacklisting.
 
-Two people run the same DGA with the same seed on different machines. The output domains will be:
+**Single Flux**: Bots communicate through intermediate proxy bots rather than directly with the real C&C server. DNS returns IP addresses of proxy bots with very short TTLs (seconds), rotating them in round-robin. The proxies forward traffic to the hidden real C&C.
 
-Question options:
+**Double Flux**: Extends single flux by also rotating the DNS name servers themselves (NS records), making it even harder to trace or take down.
 
-|   |   |
-|---|---|
-|![Unselected](https://brightspace.ru.nl/d2l/img/0/QuestionCollection.Main.radioUnchecked.svg?v=20.26.5.24373 "Unselected")|Completely different|
-|![Selected](https://brightspace.ru.nl/d2l/img/0/QuestionCollection.Main.radioChecked.svg?v=20.26.5.24373 "Selected")|Identical|
-|![Unselected](https://brightspace.ru.nl/d2l/img/0/QuestionCollection.Main.radioUnchecked.svg?v=20.26.5.24373 "Unselected")|The same except for the TLD|
-|![Unselected](https://brightspace.ru.nl/d2l/img/0/QuestionCollection.Main.radioUnchecked.svg?v=20.26.5.24373 "Unselected")|Randomly different on each run|
+**Domain Flux / DGA**: Multiple domain names map to the same IP, or the bot generates many domain names algorithmically and tries each until it finds the active one. The botmaster only needs to register one or a few of these at any time.
 
-|   |   |   |
-|---|---|---|
-|**Question 8**Correct on previous attempt(s)||1 / 1 point|
+**DNS over HTTPS (DoH)**: Increasingly used by attackers; encrypted DNS traffic hides queries from monitoring tools, and major DoH providers (e.g., Google, Alibaba) don't filter malicious resolutions.
 
-Raising the classifier's threshold (with default score values) will most likely:
+**Anonymization**: Bots can route through Tor, and C&C servers can be hosted as Tor hidden services.
 
-Question options:
+### Evading Detection of C&C Communication
 
-|   |   |
-|---|---|
-|![Unselected](https://brightspace.ru.nl/d2l/img/0/QuestionCollection.Main.radioUnchecked.svg?v=20.26.5.24373 "Unselected")|Increase both true positives and false positives|
-|![Selected](https://brightspace.ru.nl/d2l/img/0/QuestionCollection.Main.radioChecked.svg?v=20.26.5.24373 "Selected")|Decrease both true positives and false positives|
-|![Unselected](https://brightspace.ru.nl/d2l/img/0/QuestionCollection.Main.radioUnchecked.svg?v=20.26.5.24373 "Unselected")|Increase true positives while decreasing false positives|
-|![Unselected](https://brightspace.ru.nl/d2l/img/0/QuestionCollection.Main.radioUnchecked.svg?v=20.26.5.24373 "Unselected")|Have no effect on either|
+- **Encryption**: defeats content inspection; detection must rely on metadata (timing, packet sizes)
+- **Protocol tunneling**: C&C traffic is disguised as legitimate HTTP or IPv6 traffic
+- **Traffic manipulation**: deliberately low-volume, spread-out traffic to defeat statistical detection
+- **Novel channels**: social network posts, image file metadata, or least-significant-bit steganography in images
 
-|   |   |   |
-|---|---|---|
-|**Question 9**Correct on previous attempt(s)||1 / 1 point|
+### Evading Detection of the Botmaster
+Botmasters insert multiple **stepping-stones** between themselves and the C&C server, often in countries with weak cybercrime laws. These operate at the application layer, discarding routing information and breaking trace-back. An anonymization network (e.g., Tor) can serve as an additional stepping-stone.
 
-A classifier reports 99% accuracy on a domain list where 0.1% of domains are DGA-generated. Why is this nearly meaningless? 
+---
 
-Question options:
+## 4. DGA in Depth
 
-|   |   |
-|---|---|
-|![Unselected](https://brightspace.ru.nl/d2l/img/0/QuestionCollection.Main.radioUnchecked.svg?v=20.26.5.24373 "Unselected")|Accuracy can't be measured on a list of domain|
-|![Selected](https://brightspace.ru.nl/d2l/img/0/QuestionCollection.Main.radioChecked.svg?v=20.26.5.24373 "Selected")|Under extreme class imbalance, a trivial always-benign model scores 99%+, so accuracy hides recall/precision|
-|![Unselected](https://brightspace.ru.nl/d2l/img/0/QuestionCollection.Main.radioUnchecked.svg?v=20.26.5.24373 "Unselected")|Entropy is undefined for benign domains|
-|![Unselected](https://brightspace.ru.nl/d2l/img/0/QuestionCollection.Main.radioUnchecked.svg?v=20.26.5.24373 "Unselected")|99% is below the required detection threshold|
+DGAs generate large numbers of pseudo-random domain names from a shared seed. The botmaster only registers one or a few at a time.
 
-|   |   |   |
-|---|---|---|
-|**Question 10**Correct on previous attempt(s)||1 / 1 point|
+**Static seeds** (e.g., derived from the current date) produce predictable domain sets. Conficker.C generated 50,000 domain names daily, of which bots tried up to 500. If only one is registered, a bot has roughly a 1% daily chance of connecting, so on average contacts the C&C every 100 days.
 
-Reverse-engineering the algorithm and seed from a malware sample gives defenders which decisive advantage over purely statistical detection?
+**Dynamic seeds** use external unpredictable sources (e.g., ECB daily foreign exchange rates, trending Twitter topics), making precomputation infeasible.
 
-Question options:
+DGA types include:
 
-|   |   |
-|---|---|
-|![Unselected](https://brightspace.ru.nl/d2l/img/0/QuestionCollection.Main.radioUnchecked.svg?v=20.26.5.24373 "Unselected")|A lower false-positive rate only|
-|![Selected](https://brightspace.ru.nl/d2l/img/0/QuestionCollection.Main.radioChecked.svg?v=20.26.5.24373 "Selected")|The ability to pre-compute and block future domains before the botnet uses them|
-|![Unselected](https://brightspace.ru.nl/d2l/img/0/QuestionCollection.Main.radioUnchecked.svg?v=20.26.5.24373 "Unselected")|Higher entropy in detection|
-|![Unselected](https://brightspace.ru.nl/d2l/img/0/QuestionCollection.Main.radioUnchecked.svg?v=20.26.5.24373 "Unselected")|It removes the need for DNS monitoring|
+- **Arithmetic-based**: random character sequences
+- **Hash-based**: hexadecimal strings from MD5/SHA256
+- **Wordlist-based**: dictionary word concatenations (harder to distinguish from legitimate names)
+- **Permutation-based**: variations of an existing domain name
 
-|   |   |   |
-|---|---|---|
-|**Question 11**Correct on previous attempt(s)||1 / 1 point|
+---
 
-Why generate thousands of domains daily but register only one or a few?
+## 5. Botnet Detection and Mitigation
 
-Question options:
+### Detection Approaches
 
-|                                                                                                                            |                                                                            |
-| -------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
-| ![Unselected](https://brightspace.ru.nl/d2l/img/0/QuestionCollection.Main.radioUnchecked.svg?v=20.26.5.24373 "Unselected") | Registration is free, so they register all                                 |
-| ![Unselected](https://brightspace.ru.nl/d2l/img/0/QuestionCollection.Main.radioUnchecked.svg?v=20.26.5.24373 "Unselected") | To exhaust DNS servers resources with domains that are never used          |
-| ![Selected](https://brightspace.ru.nl/d2l/img/0/QuestionCollection.Main.radioChecked.svg?v=20.26.5.24373 "Selected")       | Defenders must register every candidate, while the operator only needs one |
-| ![Unselected](https://brightspace.ru.nl/d2l/img/0/QuestionCollection.Main.radioUnchecked.svg?v=20.26.5.24373 "Unselected") | Hashing inevitably produces duplicates                                     |
+Detection falls into three categories: **bot detection**, **C&C communication/server detection**, and **botmaster detection**.
+
+**Active bot detection** involves impersonating a botnet component (infiltration), hijacking the C&C server physically (law enforcement seizure) or virtually (DNS sinkholing, BGP blackholing).
+
+**Passive bot detection** silently observes behavior via host-based or network-based methods. Syntactic/signature-based methods match known patterns but fail against novel botnets. Semantic/behavior-based methods use correlation (clustering hosts with similar behavior) or anomaly detection.
+
+**Active C&C detection** involves injecting or suppressing packets in suspicious flows and observing responses — difficult due to policy restraints and false positive risks.
+
+**Passive botmaster detection** uses logging and stepping-stone detection, correlating packet timing and content — complicated by encryption, random delays, and injected decoy packets.
+
+### The Role of ISPs
+
+Botnets depend on cooperation (or inaction) from ISPs. Research shows large ISPs host disproportionate numbers of infected machines, and there are large variations in infection rates between comparably sized ISPs. Peer pressure (publicly publishing infection statistics) proved effective at motivating ISP action — though it did not work well for hosting providers. Misaligned incentives are a core problem: victims bear the costs, while ISPs may not be directly affected. National ISP coalitions (e.g., Abusehub in the Netherlands) have emerged to coordinate and share mitigation costs.
+
+---
+
+## 6. Mirai: IoT Botnets
+
+Mirai (2016) was a watershed moment, demonstrating that simple techniques targeting low-security IoT devices (IP cameras, DVRs, routers) could build botnets powerful enough to launch record-breaking DDoS attacks.
+
+**Propagation** exploited the widespread use of **default credentials** on IoT devices. Mirai performed fast, stateless internet-wide scanning, attempted login with 62 hardcoded username/password pairs, then loaded architecture-specific malware while concealing its presence.
+
+**Timeline**: Mirai surfaces August 1, 2016. Within 1 minute it had 834 bots; within 10 minutes, 11,000; within 20 hours, 64,500. Peak size reached roughly 600,000 devices. Major attacks targeted Krebs on Security (600 Gbps), OVH, and Dyn (disrupting major internet services). Source code was released on September 30, 2016, spawning numerous variants. The attacker was identified in January 2017 and arrested in February 2017.
+
+The lesson: even basic, unsophisticated malware can compromise enough under-secured IoT devices to threaten even well-defended targets.
+
+---
+
+## 7. Denial of Service (DoS)
+
+### Categories of DoS
+
+DoS attacks work by overwhelming **network resources** (flooding), overwhelming **computational resources** (complexity attacks), or **crashing** systems by exploiting software vulnerabilities.
+
+### Ping of Death (historical)
+
+Sending an oversized ICMP Echo Request (fragmented to exceed the 65,535 byte IP limit) caused a buffer overflow and kernel panic on reassembly (1996–1997). A similar concept applies to the SMB Ping of Death (CVE-2009-3103, CVSS 10.0), which crashed Windows 7 and earlier with a single unauthenticated packet to port 445.
+
+### Flooding
+
+Basic flooding requires the attacker to spend as many resources as the victim wastes. DDoS distributes this across many sources, multiplying effective attack bandwidth while each individual attacker uses relatively few resources.
+
+### SYN Flooding
+
+An attacker floods a server with TCP SYN packets using spoofed source IPs. The server allocates a **Transmission Control Block (TCB)** for each half-open connection and sends SYN+ACK replies. Since the source IPs are spoofed, the ACK never arrives. The TCB queue fills up, preventing legitimate connections. In practice, the server's SYN+ACK may reach real machines at the spoofed IPs, which send TCP RST packets back, clearing TCB entries — so the attack must be fast enough to fill the queue faster than RSTs arrive. TTL for half-open connections can be around 40 seconds.
+
+### Amplification Attacks
+
+Amplification exploits the asymmetry between small requests and large responses. The attacker spoofs the victim's IP as the source, directing large responses from unwitting servers (amplifiers) at the victim.
+
+**Smurf attacks** (now patched) used ICMP broadcasts. Modern attacks use UDP protocols:
+
+- NTP (monlist command): bandwidth amplification factor (BAF) of 556×, up to 4,670× using the worst 10% of amplifiers
+- CharGen: 358× BAF
+- DNS open resolvers: ~29–64× BAF; over 7.7 million open resolvers exist; an attacker can locate 100,000 DNS amplifiers in about 1.5 minutes
+- SNMP, SSDP, NetBios, and others also offer significant amplification
+
+A 2021 paper showed that **TCP-based middleboxes** (firewalls, DPI boxes) can also be weaponized for reflected TCP amplification, extending the amplification threat beyond UDP.
+
+### Complexity/Application Layer Attacks
+
+"L7 DDoS attacks" exploit server-side logic rather than bandwidth. A classic example is **hash table collision attacks**: many languages (PHP, Python, Ruby, Java, Node.js) use hash tables with O(1) average lookup, but O(n²) worst-case when all keys collide to the same bucket. An attacker crafting 200,000 colliding HTTP GET parameters (~2 MB request) could force 40 billion string comparisons, consuming ~40 seconds of CPU on a 1 GHz machine — from a single request. Other examples include the Apache Range Header attack (2011) and BlackNurse (2016), which used ICMP to overwhelm firewall CPU.

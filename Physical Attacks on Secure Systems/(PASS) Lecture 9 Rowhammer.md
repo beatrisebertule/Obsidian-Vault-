@@ -16,6 +16,8 @@ dynamic random access memory
 ### Rowhammer
 **Rowhammer** (also written as **row hammer** or **RowHammer**) is a computer security exploit that takes advantage of an unintended and undesirable side effect in [dynamic random-access memory](https://en.wikipedia.org/wiki/Dynamic_random-access_memory "Dynamic random-access memory") (DRAM) in which [memory cells](https://en.wikipedia.org/wiki/Memory_cell_\(computing\) "Memory cell (computing)") interact electrically between themselves by leaking their charges, possibly changing the contents of nearby [memory rows](https://en.wikipedia.org/wiki/Memory_row "Memory row") that were not [addressed](https://en.wikipedia.org/wiki/Memory_address "Memory address") in the original memory access. This circumvention of the isolation between DRAM memory cells results from the high cell density in modern DRAM, and can be triggered by specially crafted [memory access patterns](https://en.wikipedia.org/wiki/Memory_access_pattern "Memory access pattern") that rapidly activate the same memory rows numerous times.[[1]](https://en.wikipedia.org/wiki/Row_hammer#cite_note-isca14-paper-1)[[2]](https://en.wikipedia.org/wiki/Row_hammer#cite_note-arstechnica-2)[[3]](https://en.wikipedia.org/wiki/Row_hammer#cite_note-sophos-3)
 
+
+
 The Rowhammer effect has been used in some [privilege escalation](https://en.wikipedia.org/wiki/Privilege_escalation "Privilege escalation") computer security [exploits](https://en.wikipedia.org/wiki/Exploit_\(computer_security\) "Exploit (computer security)"),[[2]](https://en.wikipedia.org/wiki/Row_hammer#cite_note-arstechnica-2)[[4]](https://en.wikipedia.org/wiki/Row_hammer#cite_note-googleprojectzero-4)[[5]](https://en.wikipedia.org/wiki/Row_hammer#cite_note-5)[[6]](https://en.wikipedia.org/wiki/Row_hammer#cite_note-6) and network-based attacks are also theoretically possible.
 
 https://en.wikipedia.org/wiki/Row_hammer
@@ -106,6 +108,8 @@ The slide lists ways defenders reduce or block Rowhammer:
     - ECC memory stores extra bits to detect/correct some memory errors.
     - Can correct single-bit errors and detect some multi-bit errors.
     - Helps against accidental flips, but sophisticated Rowhammer attacks may sometimes bypass ECC.
+
+**The voltage fluctuations on the row selection lines** cause capacitors in _adjacent_ rows to discharge faster than normal
 
 ### Big picture
 

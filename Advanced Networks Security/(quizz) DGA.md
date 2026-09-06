@@ -1,6 +1,6 @@
-|   |   |   |
-|---|---|---|
-|**Question 1**Correct on previous attempt(s)||1 / 1 point|
+|                                              |     |             |
+| -------------------------------------------- | --- | ----------- |
+| **Question 1**Correct on previous attempt(s) |     | 1 / 1 point |
 
 What does the provided _classifier.py_ effectively detect?
 

@@ -15,7 +15,7 @@ model poison (weights)
 
 trigger -> label change
 
-trigger - input's property that activates blackdoor
+trigger - input's property that activates backdoor
 target class - what class we aim to misclassify to
 
 

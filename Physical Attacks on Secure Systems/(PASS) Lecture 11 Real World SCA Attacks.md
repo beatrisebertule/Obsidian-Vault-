@@ -17,6 +17,9 @@ exam questions
 dynamic - power of switching (transition)
 static - power consumed when no computation (concern of nano technologies)
 
+
+
+
 **question 2**: masking protected against dpa but not spa
 
 **question 3**: describe dpa attack on des algorithm (know how des works)

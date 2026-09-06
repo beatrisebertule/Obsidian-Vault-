@@ -118,3 +118,61 @@ send a reset
 ass soon as firewall detectd domain (blcoked)
 send reset in both direction
 send 3x for redundancy 
+
+
+### Shadowsocks
+evasion technique
+
+used to be on github develope by a chinesse student
+
+encrypted proxy protocol
+vairiant of SOCKS5
+
+all packets appear random
+
+1st variant
+based on stream cipher
+pre-shared key with server
+
+decrypt with pre-shared key
+open tcp/udp tunnel
+
+
+
+#### shadowsocks fingerprinting
+
+fingerprint hsadowsocks
+m=legnt of message, entropy
+
+
+
+
+2nd variant AEAD vairant
+
+GFW uses the length and entropy of the first data packet in each connection to  
+identify probable Shadowsocks traffic  
+• It then sends probes: partial replays of past legitimate connections, and random  
+probes of varied lengths  
+57How China Detects and Blocks Shadowsocks, IMC 2020  
+• The GFW sends a few of them in each hour to  
+make the probes less noticeable and harder  
+to fingerprint!  
+• Probes to the potential servers trigger design-  
+specific and implementation-specific  
+reactions that are fingerprintable
+
+
+## GFW against encryption
+any sort of necrypted traffic would be blocked
+
+
+entropy
+looks at number of ones
+if ne of ones close to 50% - classifed as random
+
+entropy of how to measure randomness
+
+
+### Evasion Techniques
+
+domain fronting

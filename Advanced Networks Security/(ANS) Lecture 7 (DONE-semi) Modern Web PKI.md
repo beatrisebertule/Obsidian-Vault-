@@ -198,6 +198,10 @@ The lifecycle (as described in Ristić's _Bulletproof TLS and PKI_) involves sev
 <span style="color:rgb(219, 0, 0)">Certificate Signing Request (CSR)</span> 
 formal request for a CA to sign a certificate, containing the entity's public key and identity info
 signed with the corresponding private key (unlike the certificate itself)
+
+the requester signs the certificate signing request with it's own private key
+so public key can be used to verfiy
+
 the CA may drop some CSR fields and adds its own (e.g., AIA, CRL/OCSP endpoints)
 
 ```
@@ -343,8 +347,6 @@ STEP 4: MITM attack on users visiting google.com
 
 ![[Pasted image 20260606171403.png]]
 
-#### Your Understanding in One Paragraph
-
 > We generated our own CA keypair. We already had the private key — we just needed someone trusted to **sign our public key** so browsers would trust us as a CA. The MD5 collision trick was purely a mechanism to get that signature. Once we have it, we use our private key to sign anything we want, and browsers trust it.
 
 ##### b) <span style="color:rgb(219, 0, 0)">DNS Cache Poisoning </span>+ IP Fragmentation Attack
@@ -387,7 +389,7 @@ Step 5: Resolver reassembles:
 #### CA Landscape
 [[here]]
 
-#### Certificate Transparency (CT)
+### Certificate Transparency (CT)
 
 **Motivation:** After DigiNotar, there was no record of what had been issued. The goal of CT is to make all certificate issuance public and auditable.
 
@@ -429,6 +431,7 @@ Step 5: Resolver reassembles:
 #### <span style="color:rgb(219, 0, 0)">Revocation</span> and Short-Lived Certificates
 
 **When to Revoke:** If a private key is compromised or a certificate was misissued, trust must be withdrawn before the validity period ends.
+
 
 **Revocation Mechanisms:**
 - **CRL (Certificate Revocation List):** Clients download a list of revoked serial numbers from the CA. Simple but can be large and stale.

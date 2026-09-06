@@ -437,6 +437,12 @@ not all bgp hijacks are hiojacks
 can be misconfigurauiotn - update prefix, but not roa...
 
 
+# BGPSec
+authenticate not only origin
+but the whole path
+
+core idea: forward signing
+
 <span style="color:rgb(219, 0, 0)">GBPsec authenticates the whole path (not only teh origin)</span> 
 
 ![[Pasted image 20260303174103.png]]
@@ -447,7 +453,6 @@ should support BGPsec
 as we reach one routes that does not have BGPsec, signature gets dropped and even if we reach another router that does have BGPsec, there is no way to verify
 
 ### Takeaways from Exercises
-
 
 ### check paper notes ofor ROV++
 

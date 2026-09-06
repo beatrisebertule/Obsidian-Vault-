@@ -1,4 +1,7 @@
 
+[[chat summary wifi]]
+
+
 guest lecture by Harald Vranken 
 
 more advanced attacks next lecture
@@ -419,9 +422,8 @@ Weakness: PMK may be brute-forced
 PSK has a weakness: if someone captures the 4-way handshake, they can run offline dictionary attacks against the password.
 
 SAE fixes this by using a **Diffie-Hellman-style exchange** where the password is never directly exposed, making offline attacks practically impossible.
+
 ### WPA3
-
-
 
 - **WPA Personal** → everyone uses the same Wi-Fi password
 	pre-shared key
@@ -444,3 +446,123 @@ SAE - simultaneous authentication equals
 
 
 <span style="color:rgb(219, 0, 0)">WPA3 has forward secrecy, no offline bruteforce attacks</span> 
+
+
+## WPA, WPA2, WPA3 — Mechanisms and Attacks
+
+---
+
+## WPA (2002)
+
+### Mechanism
+
+- **Authentication Personal:** PSK — password derived to PMK via `KDF(password, SSID)`
+- **Authentication Enterprise:** 802.1X EAP with Authentication Server
+- **Encryption:** TKIP (RC4 underneath with patches)
+    - Per-packet key mixing
+    - Sequence counter against replay
+    - Michael MIC replacing broken CRC-32
+- **Key derivation:** 4-way handshake derives PTK → KCK, KEK, TK from PMK + nonces + MAC addresses
+- **Designed as:** Emergency stopgap for WEP, running on existing hardware
+
+### Attacks
+
+- **Offline PSK brute-force:** Attacker sniffs 4-way handshake, tests passwords offline against captured MIC
+- **Evil twin / MITM:** No AP identity verification, attacker impersonates AP
+- **TKIP weaknesses:** RC4 still underneath, TKIP eventually broken
+- **Deauthentication attack:** Attacker forces STA to redo handshake by injecting unauthenticated deauth frames, capturing fresh handshake for brute-force
+- **No forward secrecy:** Static PMK means all past sessions compromised if password found
+- **KARMA attack:** Exploits preferred network list to auto-connect STA to rogue AP
+
+---
+
+## WPA2 (2004)
+
+### Mechanism
+
+- **Authentication Personal:** PSK — identical to WPA
+- **Authentication Enterprise:** 802.1X EAP — identical to WPA
+- **Encryption:** AES-CCMP (genuine redesign, not a patch)
+    - AES block cipher replaces RC4
+    - CCMP provides both confidentiality and integrity in one operation
+    - Much stronger cryptographic foundation
+- **Key derivation:** Same 4-way handshake as WPA
+- **Management frames:** Still unauthenticated (fixed later in 802.11w)
+
+### Attacks
+
+- **Offline PSK brute-force:** Same as WPA — sniff handshake, crack offline
+    - Worse in practice because GPU acceleration makes this very fast
+    - Tools like Hashcat, aircrack-ng widely available
+- **Evil twin / MITM:** Same as WPA — no AP identity verification
+- **Deauthentication attack:** Management frames still unauthenticated in base WPA2
+    - Attacker injects deauth frames to force handshake redo
+- **KRACK (Key Reinstallation Attack, 2017):**
+    - Attacker replays handshake messages to force nonce reuse
+    - Breaks encryption by reusing keystream
+    - Affected virtually all WPA2 implementations
+- **No forward secrecy:** Same static PMK problem as WPA
+- **PMKID attack:** Attacker can obtain PMKID from AP beacon without capturing full handshake, enabling offline brute-force without waiting for a client to connect
+
+---
+
+## WPA3 (2018/2019)
+
+### Mechanism
+
+- **Authentication Personal:** SAE (Simultaneous Authentication of Equals)
+    - Password-authenticated key exchange based on Diffie-Hellman
+    - Both STA and AP derive PWE (Password Element) from password + MAC addresses
+    - **Commitment phase:** Both exchange ephemeral scalars and elements
+    - **Confirmation phase:** Both prove knowledge of correct password via HMAC
+    - Fresh PMK generated every session from ephemeral DH values
+    - Password authenticates the exchange but does not directly derive session keys
+- **Authentication Enterprise:** 802.1X EAP — same as WPA/WPA2 but stronger requirements
+- **Encryption:** AES-GCMP (stronger than CCMP)
+- **Forward secrecy:** Yes — ephemeral DH values discarded after session
+- **Management frame protection:** Mandatory (fixes WPA2 deauth vulnerability)
+
+**OWE (Enhanced Open):** Unauthenticated DH encryption for open networks
+
+### Attacks
+
+- **Downgrade attack:**
+    - If AP runs in WPA2/WPA3 transition mode, attacker forces STA to use WPA2
+    - Once downgraded, all WPA2 attacks apply
+    - Known as part of **Dragonblood attacks (2019)**
+- **Dragonblood attacks (2019):**
+    - **Side-channel attacks** on SAE implementation
+    - Timing and cache-based attacks leak information about the password
+    - Allowed offline dictionary attacks against early WPA3 implementations
+    - Patches released but shows implementation matters as much as protocol design
+- **Evil twin:** Still possible in Personal mode if attacker knows password
+    - SAE requires both sides to know password, so attacker with password can still impersonate AP
+    - Without password, fake AP cannot complete SAE — better than WPA2
+- **DoS against SAE:** SAE is computationally expensive
+    - Attacker floods AP with SAE commit messages
+    - AP exhausts resources handling fake handshakes
+    - Anti-clogging tokens introduced as mitigation
+- **Enterprise misconfiguration:** Same certificate validation issues as WPA2 Enterprise
+
+---
+
+## Side-by-Side Comparison
+
+|Property|WPA|WPA2|WPA3|
+|---|---|---|---|
+|**Encryption**|TKIP/RC4|AES-CCMP|AES-GCMP|
+|**Personal auth**|PSK|PSK|SAE|
+|**Enterprise auth**|802.1X|802.1X|802.1X|
+|**Forward secrecy**|No|No|Yes|
+|**Offline brute-force**|Vulnerable|Vulnerable|Resistant|
+|**Deauth attack**|Vulnerable|Vulnerable|Protected (MFP mandatory)|
+|**Evil twin**|Vulnerable|Vulnerable|Partially protected|
+|**KRACK**|Vulnerable|Vulnerable|Resistant|
+|**Downgrade attack**|—|—|Vulnerable in transition mode|
+|**Key derivation**|Static PMK|Static PMK|Fresh PMK per session|
+
+---
+
+## Key Takeaway
+
+**WPA** was a temporary RC4 patch that inherited WEP's fundamental weaknesses. **WPA2** fixed the encryption with AES but kept the same PSK authentication structure, leaving it vulnerable to offline brute-force and deauthentication attacks. **WPA3** addresses these with SAE (forward secrecy, no offline brute-force) and mandatory management frame protection, but introduced new implementation-level vulnerabilities (Dragonblood) and remains vulnerable to downgrade attacks in transition mode. Enterprise mode with proper certificate validation remains the strongest option across all three generations.
